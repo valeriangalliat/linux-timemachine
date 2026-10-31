@@ -425,6 +425,14 @@ BTYPE=
 if link_exists "${DEST}/${BACKUP_LATEST}"; then
 	BTYPE="incremental"
 
+	if is_remote "${DEST}"; then
+		link_dest="../${BACKUP_LATEST}"
+	else
+		# rsync 3.5+ refuses ../current if the symlink appears owned by
+		# another user, as can happen when volume ownership is ignored.
+		link_dest="$( cd -P "${DEST}/${BACKUP_LATEST}" && pwd -P )"
+	fi
+
 	logmsg "Starting incremental backup"
 	logmsg "\$ rsync $* $( escape_path "${SRC}" ) $( escape_path "${DEST}/${BACKUP_INPROGRESS}" )"
 
@@ -439,7 +447,7 @@ if link_exists "${DEST}/${BACKUP_LATEST}"; then
 		--delete \
 		--delete-excluded \
 		--partial-dir=${RSYNC_PARTIAL} \
-		--link-dest=../${BACKUP_LATEST} \
+		--link-dest=$( escape_path "${link_dest}" ) \
 		$* \
 		$( escape_path "${SRC}" ) $( escape_path "${DEST}/${BACKUP_INPROGRESS}" )"
 else
