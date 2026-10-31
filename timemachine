@@ -1,7 +1,6 @@
 #!/bin/sh -eu
 #
 # https://serverfault.com/questions/834994/rsync-only-keep-10-backup-folders
-export PATH=/bin:/usr/bin
 
 ################################################################################
 # Variables
